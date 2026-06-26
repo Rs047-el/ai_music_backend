@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>AI音楽メーカー</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <main class="container">
+    <section class="title-area">
+      <h1>ブロックでつくる AI音楽メーカー</h1>
+      <p>
+        世界観・楽器・スピードをえらんで、AIに音楽を作ってもらおう！
+      </p>
+    </section>
+
+    {% if error %}
+      <div class="error-box">
+        {{ error }}
+      </div>
+    {% endif %}
+
+    <form action="/create" method="post" class="card-form">
+      <section class="card-section">
+        <h2>1. 世界観をえらぼう</h2>
+        <div class="card-grid">
+          {% for world in worlds %}
+            <label class="card">
+              <input type="radio" name="world" value="{{ world }}">
+              <span>{{ world }}</span>
+            </label>
+          {% endfor %}
+        </div>
+      </section>
+
+      <section class="card-section">
+        <h2>2. 楽器をえらぼう</h2>
+        <div class="card-grid">
+          {% for instrument in instruments %}
+            <label class="card">
+              <input type="radio" name="instrument" value="{{ instrument }}">
+              <span>{{ instrument }}</span>
+            </label>
+          {% endfor %}
+        </div>
+      </section>
+
+      <section class="card-section">
+        <h2>3. スピードをえらぼう</h2>
+        <div class="card-grid">
+          {% for speed in speeds %}
+            <label class="card">
+              <input type="radio" name="speed" value="{{ speed }}">
+              <span>{{ speed }}</span>
+            </label>
+          {% endfor %}
+        </div>
+      </section>
+
+      <div class="notice-box">
+        本名・学校名・住所などの個人情報は使いません。<br>
+        ボタンを押したら、音楽ができるまで少し待ってね。
+      </div>
+
+      <button type="submit" class="submit-button">
+        AIに音楽を作ってもらう
+      </button>
+    </form>
+  </main>
+  <script>
+    const form = document.querySelector(".card-form");
+    const button = document.querySelector(".submit-button");
+  
+    if (form && button) {
+      form.addEventListener("submit", function () {
+        button.disabled = true;
+        button.textContent = "AIが音楽を作っています...";
+      });
+    }
+  </script>
+</body>
+</html>

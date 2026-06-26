@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>音楽ができました</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+  <main class="container">
+    <section class="title-area">
+      <h1>音楽ができました！</h1>
+      <p>選んだカードをもとに、AIへのお願い文を作りました。</p>
+    </section>
+
+    <section class="result-card">
+      <h2>選んだカード</h2>
+      <div class="selected-list">
+        <div class="selected-item">世界観：{{ world }}</div>
+        <div class="selected-item">楽器：{{ instrument }}</div>
+        <div class="selected-item">スピード：{{ speed }}</div>
+      </div>
+    </section>
+
+    <section class="result-card">
+      <h2>AIへのお願い</h2>
+      <p class="prompt-text">
+        {{ japanese_request }}
+      </p>
+    </section>
+
+    <section class="result-card">
+      <h2>音楽生成AIに送った英語プロンプト</h2>
+      <p class="prompt-text">
+        {{ music_prompt }}
+      </p>
+    </section>
+
+    <section class="result-card">
+      <h2>できた音楽</h2>
+
+      <audio controls class="audio-player">
+        <source src="{{ audio_url }}" type="audio/mpeg">
+        このブラウザでは音楽を再生できません。
+      </audio>
+
+      <div class="button-row">
+        <a href="{{ audio_url }}" download class="download-button">
+          音楽をダウンロード
+        </a>
+
+        <a href="/" class="back-button">
+          もう一度作る
+        </a>
+      </div>
+    </section>
+  </main>
+</body>
+</html>
