@@ -14,11 +14,11 @@ cd graduation-research-project
 
 2. 仮想環境を有効化
 
-.venv312\Scripts\activate
+.venv\Scripts\activate
 
 3. プログラムを実行
 
-python main.py
+python app.py
 
 ---
 
