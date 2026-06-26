@@ -10,7 +10,7 @@
 
 1. プロジェクトフォルダへ移動
 
-cd graduation-research-project
+cd ai_music_backend
 
 2. 仮想環境を有効化
 
