@@ -1,0 +1,65 @@
+{
+    "world": {
+      "title": "世界観",
+      "description": "どんな世界の音楽にする？",
+      "cards": [
+        {
+          "id": "space",
+          "label": "宇宙",
+          "image": "images/worlds/space.png"
+        },
+        {
+          "id": "ocean",
+          "label": "海",
+          "image": "images/worlds/ocean.png"
+        },
+        {
+          "id": "forest",
+          "label": "森",
+          "image": "images/worlds/forest.png"
+        }
+      ]
+    },
+    "instrument": {
+      "title": "楽器",
+      "description": "どの楽器を使う？",
+      "cards": [
+        {
+          "id": "piano",
+          "label": "ピアノ",
+          "image": "images/instruments/piano.png"
+        },
+        {
+          "id": "drums",
+          "label": "ドラム",
+          "image": "images/instruments/drums.png"
+        },
+        {
+          "id": "flute",
+          "label": "フルート",
+          "image": "images/instruments/flute.png"
+        }
+      ]
+    },
+    "speed": {
+      "title": "速さ",
+      "description": "どれくらいの速さにする？",
+      "cards": [
+        {
+          "id": "slow",
+          "label": "ゆっくり",
+          "image": "images/speeds/slow.png"
+        },
+        {
+          "id": "normal",
+          "label": "ふつう",
+          "image": "images/speeds/normal.png"
+        },
+        {
+          "id": "fast",
+          "label": "はやい",
+          "image": "images/speeds/fast.png"
+        }
+      ]
+    }
+  }
