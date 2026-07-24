@@ -209,11 +209,9 @@ function renderSelectedCards() {
             ${category.title}
           </span>
 
-          <img
-            src="/static/${selected.image}"
-            alt=""
-            class="selected-image"
-          >
+          <span class="card-icon-text">
+            ${card.icon}
+          </span>
 
           <span class="selected-label">
             ${selected.label}
