@@ -402,15 +402,11 @@ musicCards.forEach((card) => {
 
   card.addEventListener(
     "click",
-    (event) => {
+    () => {
       if (
-        event.pointerType &&
-        event.pointerType !== "mouse"
+        isDragging ||
+        suppressNextClick
       ) {
-        return;
-      }
-  
-      if (isDragging) {
         return;
       }
   
@@ -529,8 +525,7 @@ musicCards.forEach((card) => {
     (event) => {
       if (
         !touchDragState ||
-        touchDragState.pointerId !==
-          event.pointerId
+        touchDragState.pointerId !== event.pointerId
       ) {
         return;
       }
@@ -564,14 +559,52 @@ musicCards.forEach((card) => {
           cardData.icon
         );
       }
+  
+      suppressNextClick = true;
+  
+      setTimeout(() => {
+        suppressNextClick = false;
+      }, 300);
     }
   );
   
   
   card.addEventListener(
     "pointercancel",
+    (event) => {
+      if (
+        !touchDragState ||
+        touchDragState.pointerId !==
+          event.pointerId
+      ) {
+        return;
+      }
+  
+      clearTouchDropHighlight();
+  
+      touchDragState.clone?.remove();
+  
+      touchDragState.card.classList.remove(
+        "is-dragging"
+      );
+  
+      touchDragState = null;
+  
+      suppressNextClick = true;
+  
+      setTimeout(() => {
+        suppressNextClick = false;
+      }, 300);
+    }
+  );
+
+  card.addEventListener(
+    "lostpointercapture",
     () => {
-      if (!touchDragState) {
+      if (
+        !touchDragState ||
+        touchDragState.card !== card
+      ) {
         return;
       }
   

@@ -33,7 +33,8 @@
         <section class="palette-panel">
           <nav class="category-tabs" id="categoryTabs">
             {% for category in categories %}
-            <button type="button" class="category-tab" data-category="{{ category.id }}">
+            <button type="button" class="category-tab{% if loop.first %} is-active{% endif %}"
+              data-category="{{ category.id }}">
               {{ category.title }}
             </button>
             {% endfor %}
@@ -41,7 +42,7 @@
 
           <div class="category-panels">
             {% for category in categories %}
-            <section class="category-panel" data-category="{{ category.id }}">
+            <section class="category-panel{% if loop.first %} is-active{% endif %}" data-category="{{ category.id }}">
               <div class="category-heading">
                 <h2>{{ category.title }}</h2>
                 <p>{{ category.description }}</p>
@@ -111,7 +112,7 @@
   {{ categories | tojson }}
 </script>
 
-  <script src="{{ url_for('static', filename='js/cards.js') }}"></script>
+  <script src="{{ url_for('static', filename='cards.js') }}?v=4"></script>
 </body>
 
 </html>

@@ -74,25 +74,93 @@
   grid-template-columns:
     repeat(
       auto-fit,
-      minmax(130px, 1fr)
+      minmax(145px, 1fr)
     );
   gap: 14px;
 }
 
 .music-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+
   width: 100%;
-  min-height: 125px;
+  min-height: 150px;
+  padding: 16px 12px;
+
+  border: 3px solid #d9e2ef;
+  border-radius: 20px;
+  background: #ffffff;
+
+  color: #263449;
+  text-align: center;
+
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+
+  box-shadow:
+    0 4px 10px
+    rgba(30, 50, 80, 0.06);
+
+  transition:
+    transform 0.15s,
+    border-color 0.15s,
+    background 0.15s,
+    box-shadow 0.15s,
+    opacity 0.15s;
+}
+
+.music-card:hover {
+  border-color: #4f8cff;
+  background: #f7faff;
+
+  transform: translateY(-3px);
+
+  box-shadow:
+    0 8px 16px
+    rgba(30, 50, 80, 0.12);
+}
+
+.music-card:active {
+  cursor: grabbing;
+}
+
+.music-card.is-dragging {
+  opacity: 0.45;
+  transform: scale(0.95);
+}
+
+.card-icon {
+  display: block;
+
+  font-size: 2.8rem;
+  line-height: 1;
+
+  flex-shrink: 0;
+}
+
+.card-label {
+  display: block;
+  width: 100%;
+
+  font-size: 1rem;
+  font-weight: 700;
+  line-height: 1.4;
+  text-align: center;
+
+  white-space: normal;
+  word-break: normal;
+  overflow-wrap: anywhere;
 }
 
 .drop-zone-list {
   display: grid;
   grid-template-columns: 1fr;
   gap: 14px;
-}
-
-.submit-button {
-  width: 100%;
-  margin-top: 22px;
 }
 
 .drop-zone {
@@ -125,6 +193,12 @@
 }
 
 .drop-zone.is-drag-over {
+  border-color: #3b7cff;
+  background: #edf4ff;
+  transform: scale(1.03);
+}
+
+.drop-zone.is-touch-over {
   border-color: #3b7cff;
   background: #edf4ff;
   transform: scale(1.03);
@@ -166,23 +240,13 @@
   margin-top: 10px;
   font-size: 22px;
   font-weight: bold;
+  text-align: center;
 }
 
 .placed-card-change {
   margin-top: 8px;
   font-size: 14px;
   color: #65748a;
-}
-
-.submit-button:disabled {
-  opacity: 0.45;
-  cursor: not-allowed;
-}
-
-.music-card {
-  touch-action: none;
-  user-select: none;
-  -webkit-user-select: none;
 }
 
 .touch-drag-clone {
@@ -212,40 +276,6 @@
   transform:
     translate(-50%, -50%)
     scale(1.05);
-}
-
-.drop-zone.is-touch-over {
-  border-color: #3b7cff;
-  background: #edf4ff;
-  transform: scale(1.03);
-}
-
-.music-card:hover {
-  transform: translateY(-3px);
-
-  box-shadow:
-    0 8px 16px
-    rgba(30, 50, 80, 0.12);
-}
-
-.music-card:active {
-  cursor: grabbing;
-}
-
-.music-card.is-dragging {
-  opacity: 0.45;
-  transform: scale(0.95);
-}
-
-.card-icon {
-  font-size: 52px;
-  line-height: 1;
-}
-
-.card-label {
-  margin-top: 12px;
-  font-size: 22px;
-  font-weight: bold;
 }
 
 .submit-button {
@@ -327,6 +357,18 @@
     grid-template-columns:
       repeat(3, 1fr);
   }
+
+  .card-list {
+    grid-template-columns:
+      repeat(
+        auto-fit,
+        minmax(135px, 1fr)
+      );
+  }
+
+  .music-card {
+    min-height: 145px;
+  }
 }
 
 @media (max-width: 650px) {
@@ -336,6 +378,24 @@
 
   .drop-zone-list {
     grid-template-columns: 1fr;
+  }
+
+  .card-list {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+  .music-card {
+    min-height: 135px;
+    padding: 14px 8px;
+  }
+
+  .card-icon {
+    font-size: 2.5rem;
+  }
+
+  .card-label {
+    font-size: 0.95rem;
   }
 }
 
