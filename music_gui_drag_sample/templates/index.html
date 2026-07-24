@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="ja">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <title>AI音楽づくり</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <main class="app">
+    <header class="header">
+      <h1>音楽の材料をえらぼう</h1>
+      <p>カードをタップするか、上の箱にはこんでね。</p>
+    </header>
+
+    <section class="selection-slots">
+      <button class="selection-slot is-active" data-type="world" type="button">
+        <span class="slot-title">世界観</span>
+        <span class="slot-content">ここに入れてね</span>
+      </button>
+      <button class="selection-slot" data-type="instrument" type="button">
+        <span class="slot-title">楽器</span>
+        <span class="slot-content">ここに入れてね</span>
+      </button>
+      <button class="selection-slot" data-type="speed" type="button">
+        <span class="slot-title">速さ</span>
+        <span class="slot-content">ここに入れてね</span>
+      </button>
+      <button class="selection-slot" data-type="image" type="button">
+        <span class="slot-title">イメージ</span>
+        <span class="slot-content">ここに入れてね</span>
+      </button>
+    </section>
+
+    <section class="options-panel">
+      <h2 id="categoryTitle">世界観をえらぼう</h2>
+      <div id="optionList" class="option-list"></div>
+    </section>
+
+    <section class="free-input">
+      <label for="freeInput">ほかに入れたいこと</label>
+      <textarea id="freeInput" maxlength="100" placeholder="たとえば：キラキラした感じ"></textarea>
+    </section>
+
+    <section class="actions">
+      <button id="resetButton" class="secondary-button" type="button">えらびなおす</button>
+      <button id="generateButton" class="primary-button" type="button" disabled>音楽をつくる</button>
+    </section>
+
+    <section id="statusPanel" class="status-panel" hidden>
+      <div class="spinner"></div>
+      <p>音楽をつくっています...</p>
+    </section>
+
+    <section id="resultPanel" class="result-panel" hidden>
+      <h2>できあがり！</h2>
+      <p id="resultMessage"></p>
+      <div id="resultSummary" class="result-summary"></div>
+      <p class="note">このサンプルでは音楽生成部分をモックにしています。</p>
+    </section>
+  </main>
+
+  <script>
+    window.APP_OPTIONS = {{ options | tojson }};
+  </script>
+  <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+</body>
+</html>
