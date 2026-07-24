@@ -1,19 +1,14 @@
 <!DOCTYPE html>
 <html lang="ja">
+
 <head>
   <meta charset="UTF-8">
 
-  <meta
-    name="viewport"
-    content="width=device-width, initial-scale=1.0"
-  >
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
   <title>AI音楽メーカー</title>
 
-  <link
-    rel="stylesheet"
-    href="{{ url_for('static', filename='style.css') }}"
-  >
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
 </head>
 
 <body>
@@ -28,105 +23,95 @@
     </section>
 
     {% if error %}
-      <div
-        class="error-box"
-        role="alert"
-      >
-        {{ error }}
-      </div>
+    <div class="error-box" role="alert">
+      {{ error }}
+    </div>
     {% endif %}
 
-    <form
-      action="/create"
-      method="post"
-      class="card-form"
-    >
-      <!-- カテゴリ切り替え -->
-      <nav
-        id="categoryTabs"
-        class="category-tabs"
-        aria-label="選択項目"
-      >
-        {% for category in categories %}
-          <button
-            type="button"
-            class="category-tab{% if loop.first %} is-active{% endif %}"
-            data-category="{{ category.id }}"
-          >
-            <span class="category-title">
+    <form action="{{ url_for('create_music') }}" method="post" id="musicForm">
+      <div class="music-workspace">
+        <section class="palette-panel">
+          <nav class="category-tabs" id="categoryTabs">
+            {% for category in categories %}
+            <button type="button" class="category-tab" data-category="{{ category.id }}">
               {{ category.title }}
-            </span>
+            </button>
+            {% endfor %}
+          </nav>
 
-            <span
-              class="category-result"
-              data-result="{{ category.id }}"
-            >
-              まだえらんでいません
-            </span>
+          <div class="category-panels">
+            {% for category in categories %}
+            <section class="category-panel" data-category="{{ category.id }}">
+              <div class="category-heading">
+                <h2>{{ category.title }}</h2>
+                <p>{{ category.description }}</p>
+              </div>
+
+              <div class="card-list">
+                {% for card in category.cards %}
+                <button type="button" class="music-card" data-category="{{ category.id }}" data-card-id="{{ card.id }}"
+                  data-label="{{ card.label }}" data-icon="{{ card.icon }}">
+                  <span class="card-icon">
+                    {{ card.icon }}
+                  </span>
+
+                  <span class="card-label">
+                    {{ card.label }}
+                  </span>
+                </button>
+                {% endfor %}
+              </div>
+            </section>
+            {% endfor %}
+          </div>
+        </section>
+
+        <section class="builder-section">
+          <h2>音楽をくみたてよう</h2>
+
+          <p class="builder-description">
+            カードを同じ種類のわくまで運んでね。
+          </p>
+
+          <div class="drop-zone-list">
+            {% for category in categories %}
+            <div class="drop-zone" data-category="{{ category.id }}">
+              <span class="drop-zone-title">
+                {{ category.title }}
+              </span>
+
+              <span class="drop-zone-placeholder">
+                ここにカードをおこう
+              </span>
+
+              <div class="dropped-card"></div>
+            </div>
+
+            <input type="hidden" id="selected-{{ category.id }}" name="{{ category.id }}">
+            {% endfor %}
+          </div>
+
+          {% if error %}
+          <p class="error-message">
+            {{ error }}
+          </p>
+          {% endif %}
+
+          <button type="submit" class="submit-button" disabled>
+            🎵 音楽をつくる
           </button>
-        {% endfor %}
-      </nav>
-
-      <!-- 選択中カテゴリの説明 -->
-      <section class="card-section">
-        <h2 id="categoryTitle">
-          {{ categories[0].title }}をえらぼう
-        </h2>
-
-        <p id="categoryDescription">
-          {{ categories[0].description }}
-        </p>
-
-        <!-- カード表示欄 -->
-        <div
-          id="cardGrid"
-          class="card-grid"
-        ></div>
-      </section>
-
-      <!-- 選択値をFlaskへ送る -->
-      {% for category in categories %}
-        <input
-          type="hidden"
-          name="{{ category.id }}"
-          id="selected-{{ category.id }}"
-        >
-      {% endfor %}
-
-      <!-- 選択済みカード -->
-      <section class="selected-section">
-        <h2>えらんだカード</h2>
-
-        <div
-          id="selectedCards"
-          class="selected-grid"
-        ></div>
-      </section>
-
-      <div class="notice-box">
-        選び直したいときは、
-        項目をタッチして別のカードをえらんでね。
+        </section>
       </div>
-
-      <button
-        type="submit"
-        class="submit-button"
-        disabled
-      >
-        つぎへ
-      </button>
     </form>
+
+    <script src="{{ url_for('static', filename='js/cards.js') }}"></script>
   </main>
 
-  <script
-  id="category-data"
-  type="application/json"
->
+  <script id="category-data" type="application/json">
   {{ categories | tojson }}
 </script>
 
-<script
-  src="{{ url_for('static', filename='js/cards.js') }}"
-></script>
+  <script src="{{ url_for('static', filename='js/cards.js') }}"></script>
 </body>
+
 </html>

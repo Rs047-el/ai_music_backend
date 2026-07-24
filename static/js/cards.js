@@ -1,39 +1,15 @@
-const categoryDataElement =
-  document.getElementById("category-data");
-
-if (!categoryDataElement) {
-  throw new Error(
-    "category-dataが見つかりません。"
-  );
-}
-
-const categories =
-  JSON.parse(
-    categoryDataElement.textContent
-  );
-
-if (categories.length === 0) {
-  throw new Error(
-    "カテゴリデータがありません。"
-  );
-}
-
 const selections = {};
 
-let activeCategoryId =
-  categories[0].id;
+let isDragging = false;
 
-const cardGrid =
-  document.getElementById("cardGrid");
-
-const categoryTitle =
-  document.getElementById(
-    "categoryTitle"
+const musicCards =
+  document.querySelectorAll(
+    ".music-card"
   );
 
-const categoryDescription =
-  document.getElementById(
-    "categoryDescription"
+const dropZones =
+  document.querySelectorAll(
+    ".drop-zone"
   );
 
 const submitButton =
@@ -41,220 +17,32 @@ const submitButton =
     ".submit-button"
   );
 
-
-function getActiveCategory() {
-  return categories.find(
-    (category) =>
-      category.id ===
-      activeCategoryId
+const categoryTabs =
+  document.querySelectorAll(
+    ".category-tab"
   );
-}
 
-
-function renderCards() {
-  const category =
-    getActiveCategory();
-
-  if (!category) {
-    return;
-  }
-
-  categoryTitle.textContent =
-    `${category.title}をえらぼう`;
-
-  categoryDescription.textContent =
-    category.description;
-
-  cardGrid.innerHTML = "";
-
-  category.cards.forEach((card) => {
-    const button =
-      document.createElement(
-        "button"
-      );
-
-    button.type = "button";
-    button.className = "card";
-
-    if (
-      selections[category.id]?.id
-      === card.id
-    ) {
-      button.classList.add(
-        "is-selected"
-      );
-    }
-
-    button.innerHTML = `
-      <img
-        src="/static/${card.image}"
-        alt=""
-        class="card-image"
-      >
-
-      <span class="card-label">
-        ${card.label}
-      </span>
-    `;
-
-    button.addEventListener(
-      "click",
-      () => {
-        selectCard(
-          category.id,
-          card
-        );
-      }
-    );
-
-    cardGrid.appendChild(
-      button
-    );
-  });
-}
-
-
-function selectCard(
-  categoryId,
-  card
-) {
-  selections[categoryId] =
-    card;
-
-  const hiddenInput =
-    document.getElementById(
-      `selected-${categoryId}`
-    );
-
-  if (!hiddenInput) {
-    console.error(
-      `selected-${categoryId}が見つかりません。`
-    );
-
-    return;
-  }
-
-  hiddenInput.value =
-    card.id;
-
-  renderTabs();
-  renderCards();
-  renderSelectedCards();
-  updateSubmitButton();
-}
-
-
-function renderTabs() {
-  document
-    .querySelectorAll(
-      ".category-tab"
-    )
-    .forEach((tab) => {
-      const categoryId =
-        tab.dataset.category;
-
-      tab.classList.toggle(
-        "is-active",
-        categoryId ===
-          activeCategoryId
-      );
-
-      tab.classList.toggle(
-        "is-complete",
-        Boolean(
-          selections[categoryId]
-        )
-      );
-
-      const result =
-        tab.querySelector(
-          ".category-result"
-        );
-
-      if (result) {
-        result.textContent =
-          selections[categoryId]
-            ?.label
-          ?? "まだえらんでいません";
-      }
-    });
-}
-
-
-function renderSelectedCards() {
-  const selectedCards =
-    document.getElementById(
-      "selectedCards"
-    );
-
-  selectedCards.innerHTML = "";
-
-  categories.forEach(
-    (category) => {
-      const selected =
-        selections[category.id];
-
-      const item =
-        document.createElement(
-          "button"
-        );
-
-      item.type = "button";
-      item.className =
-        "selected-card";
-
-      item.innerHTML = selected
-        ? `
-          <span class="selected-category">
-            ${category.title}
-          </span>
-
-          <span class="card-icon-text">
-            ${card.icon}
-          </span>
-
-          <span class="selected-label">
-            ${selected.label}
-          </span>
-        `
-        : `
-          <span class="selected-category">
-            ${category.title}
-          </span>
-
-          <span class="empty-text">
-            まだえらんでいません
-          </span>
-        `;
-
-      item.addEventListener(
-        "click",
-        () => {
-          activeCategoryId =
-            category.id;
-
-          renderTabs();
-          renderCards();
-        }
-      );
-
-      selectedCards.appendChild(
-        item
-      );
-    }
+const categoryPanels =
+  document.querySelectorAll(
+    ".category-panel"
   );
-}
 
 
 function updateSubmitButton() {
+  if (!submitButton) {
+    return;
+  }
+
   const completed =
-    categories.every(
-      (category) =>
-        Boolean(
-          selections[
-            category.id
-          ]
-        )
+    Array.from(dropZones).every(
+      (dropZone) => {
+        const categoryId =
+          dropZone.dataset.category;
+
+        return Boolean(
+          selections[categoryId]
+        );
+      }
     );
 
   submitButton.disabled =
@@ -262,25 +50,346 @@ function updateSubmitButton() {
 }
 
 
-document
-  .querySelectorAll(
-    ".category-tab"
-  )
-  .forEach((tab) => {
-    tab.addEventListener(
-      "click",
-      () => {
-        activeCategoryId =
-          tab.dataset.category;
+function showCategory(categoryId) {
+  categoryTabs.forEach((tab) => {
+    const isActive =
+      tab.dataset.category ===
+      categoryId;
 
-        renderTabs();
-        renderCards();
-      }
+    tab.classList.toggle(
+      "is-active",
+      isActive
     );
   });
 
+  categoryPanels.forEach((panel) => {
+    const isActive =
+      panel.dataset.category ===
+      categoryId;
 
-renderTabs();
-renderCards();
-renderSelectedCards();
+    panel.classList.toggle(
+      "is-active",
+      isActive
+    );
+  });
+}
+
+
+function placeCard(
+  categoryId,
+  cardId,
+  label,
+  icon
+) {
+  const dropZone =
+    document.querySelector(
+      `.drop-zone[data-category="${categoryId}"]`
+    );
+
+  if (!dropZone) {
+    return;
+  }
+
+  const droppedCard =
+    dropZone.querySelector(
+      ".dropped-card"
+    );
+
+  const placeholder =
+    dropZone.querySelector(
+      ".drop-zone-placeholder"
+    );
+
+  if (!droppedCard || !placeholder) {
+    return;
+  }
+
+  selections[categoryId] = {
+    id: cardId,
+    label,
+    icon,
+  };
+
+  const hiddenInput =
+    document.getElementById(
+      `selected-${categoryId}`
+    );
+
+  if (hiddenInput) {
+    hiddenInput.value =
+      cardId;
+  }
+
+  droppedCard.innerHTML = `
+    <button
+      type="button"
+      class="placed-card"
+    >
+      <span class="placed-card-icon">
+        ${icon || "🎵"}
+      </span>
+
+      <span class="placed-card-label">
+        ${label}
+      </span>
+
+      <span class="placed-card-change">
+        えらびなおす
+      </span>
+    </button>
+  `;
+
+  placeholder.hidden = true;
+
+  dropZone.classList.add(
+    "is-filled"
+  );
+
+  const placedButton =
+    droppedCard.querySelector(
+      ".placed-card"
+    );
+
+  if (placedButton) {
+    placedButton.addEventListener(
+      "click",
+      () => {
+        clearSelection(
+          categoryId
+        );
+      }
+    );
+  }
+
+  updateSubmitButton();
+}
+
+
+function clearSelection(categoryId) {
+  const dropZone =
+    document.querySelector(
+      `.drop-zone[data-category="${categoryId}"]`
+    );
+
+  if (!dropZone) {
+    return;
+  }
+
+  const droppedCard =
+    dropZone.querySelector(
+      ".dropped-card"
+    );
+
+  const placeholder =
+    dropZone.querySelector(
+      ".drop-zone-placeholder"
+    );
+
+  delete selections[categoryId];
+
+  const hiddenInput =
+    document.getElementById(
+      `selected-${categoryId}`
+    );
+
+  if (hiddenInput) {
+    hiddenInput.value = "";
+  }
+
+  if (droppedCard) {
+    droppedCard.innerHTML = "";
+  }
+
+  if (placeholder) {
+    placeholder.hidden = false;
+  }
+
+  dropZone.classList.remove(
+    "is-filled"
+  );
+
+  updateSubmitButton();
+
+  showCategory(categoryId);
+}
+
+
+function getCardData(card) {
+  return {
+    categoryId:
+      card.dataset.category,
+    cardId:
+      card.dataset.cardId,
+    label:
+      card.dataset.label,
+    icon:
+      card.dataset.icon,
+  };
+}
+
+
+musicCards.forEach((card) => {
+  card.draggable = true;
+
+  card.addEventListener(
+    "dragstart",
+    (event) => {
+      isDragging = true;
+
+      const cardData =
+        getCardData(card);
+
+      event.dataTransfer.setData(
+        "application/json",
+        JSON.stringify(cardData)
+      );
+
+      event.dataTransfer.effectAllowed =
+        "copy";
+
+      card.classList.add(
+        "is-dragging"
+      );
+    }
+  );
+
+  card.addEventListener(
+    "dragend",
+    () => {
+      card.classList.remove(
+        "is-dragging"
+      );
+
+      setTimeout(() => {
+        isDragging = false;
+      }, 0);
+    }
+  );
+
+  card.addEventListener(
+    "click",
+    () => {
+      if (isDragging) {
+        return;
+      }
+
+      const cardData =
+        getCardData(card);
+
+      placeCard(
+        cardData.categoryId,
+        cardData.cardId,
+        cardData.label,
+        cardData.icon
+      );
+    }
+  );
+});
+
+
+dropZones.forEach((dropZone) => {
+  dropZone.addEventListener(
+    "dragover",
+    (event) => {
+      event.preventDefault();
+
+      event.dataTransfer.dropEffect =
+        "copy";
+
+      dropZone.classList.add(
+        "is-drag-over"
+      );
+    }
+  );
+
+  dropZone.addEventListener(
+    "dragleave",
+    () => {
+      dropZone.classList.remove(
+        "is-drag-over"
+      );
+    }
+  );
+
+  dropZone.addEventListener(
+    "drop",
+    (event) => {
+      event.preventDefault();
+
+      dropZone.classList.remove(
+        "is-drag-over"
+      );
+
+      const rawData =
+        event.dataTransfer.getData(
+          "application/json"
+        );
+
+      if (!rawData) {
+        return;
+      }
+
+      let cardData;
+
+      try {
+        cardData =
+          JSON.parse(rawData);
+      } catch (error) {
+        console.error(
+          "カードデータを読み込めませんでした。",
+          error
+        );
+
+        return;
+      }
+
+      const dropCategoryId =
+        dropZone.dataset.category;
+
+      if (
+        cardData.categoryId !==
+        dropCategoryId
+      ) {
+        dropZone.classList.add(
+          "is-error"
+        );
+
+        setTimeout(() => {
+          dropZone.classList.remove(
+            "is-error"
+          );
+        }, 500);
+
+        return;
+      }
+
+      placeCard(
+        cardData.categoryId,
+        cardData.cardId,
+        cardData.label,
+        cardData.icon
+      );
+    }
+  );
+});
+
+
+categoryTabs.forEach((tab) => {
+  tab.addEventListener(
+    "click",
+    () => {
+      showCategory(
+        tab.dataset.category
+      );
+    }
+  );
+});
+
+
+if (categoryTabs.length > 0) {
+  showCategory(
+    categoryTabs[0].dataset.category
+  );
+}
+
 updateSubmitButton();
