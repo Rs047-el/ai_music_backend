@@ -1,6 +1,8 @@
 const selections = {};
 
+let touchDragState = null;
 let isDragging = false;
+let suppressNextClick = false;
 
 const musicCards =
   document.querySelectorAll(
@@ -227,6 +229,138 @@ function getCardData(card) {
   };
 }
 
+function createTouchClone(
+  card,
+  clientX,
+  clientY
+) {
+  const clone =
+    card.cloneNode(true);
+
+  clone.classList.add(
+    "touch-drag-clone"
+  );
+
+  clone.classList.remove(
+    "is-dragging"
+  );
+
+  clone.removeAttribute(
+    "id"
+  );
+
+  clone.style.left =
+    `${clientX}px`;
+
+  clone.style.top =
+    `${clientY}px`;
+
+  document.body.appendChild(
+    clone
+  );
+
+  return clone;
+}
+
+
+function moveTouchClone(
+  clientX,
+  clientY
+) {
+  if (!touchDragState?.clone) {
+    return;
+  }
+
+  touchDragState.clone.style.left =
+    `${clientX}px`;
+
+  touchDragState.clone.style.top =
+    `${clientY}px`;
+}
+
+
+function findDropZoneAtPoint(
+  clientX,
+  clientY
+) {
+  const element =
+    document.elementFromPoint(
+      clientX,
+      clientY
+    );
+
+  return element?.closest(
+    ".drop-zone"
+  ) ?? null;
+}
+
+
+function clearTouchDropHighlight() {
+  dropZones.forEach(
+    (dropZone) => {
+      dropZone.classList.remove(
+        "is-touch-over"
+      );
+    }
+  );
+}
+
+
+function finishTouchDrag(
+  clientX,
+  clientY
+) {
+  if (!touchDragState) {
+    return;
+  }
+
+  const dropZone =
+    findDropZoneAtPoint(
+      clientX,
+      clientY
+    );
+
+  clearTouchDropHighlight();
+
+  if (dropZone) {
+    const dropCategoryId =
+      dropZone.dataset.category;
+
+    const cardData =
+      touchDragState.cardData;
+
+    if (
+      cardData.categoryId ===
+      dropCategoryId
+    ) {
+      placeCard(
+        cardData.categoryId,
+        cardData.cardId,
+        cardData.label,
+        cardData.icon
+      );
+    } else {
+      dropZone.classList.add(
+        "is-error"
+      );
+
+      setTimeout(() => {
+        dropZone.classList.remove(
+          "is-error"
+        );
+      }, 500);
+    }
+  }
+
+  touchDragState.clone?.remove();
+
+  touchDragState.card.classList.remove(
+    "is-dragging"
+  );
+
+  touchDragState = null;
+}
+
 
 musicCards.forEach((card) => {
   card.draggable = true;
@@ -268,20 +402,188 @@ musicCards.forEach((card) => {
 
   card.addEventListener(
     "click",
-    () => {
+    (event) => {
+      if (
+        event.pointerType &&
+        event.pointerType !== "mouse"
+      ) {
+        return;
+      }
+  
       if (isDragging) {
         return;
       }
-
+  
       const cardData =
         getCardData(card);
-
+  
       placeCard(
         cardData.categoryId,
         cardData.cardId,
         cardData.label,
         cardData.icon
       );
+    }
+  );
+
+  card.addEventListener(
+    "pointerdown",
+    (event) => {
+      if (
+        event.pointerType ===
+        "mouse"
+      ) {
+        return;
+      }
+  
+      event.preventDefault();
+  
+      card.setPointerCapture(
+        event.pointerId
+      );
+  
+      const cardData =
+        getCardData(card);
+  
+      touchDragState = {
+        pointerId:
+          event.pointerId,
+        card,
+        cardData,
+        clone:
+          createTouchClone(
+            card,
+            event.clientX,
+            event.clientY
+          ),
+        startX:
+          event.clientX,
+        startY:
+          event.clientY,
+        moved: false,
+      };
+  
+      card.classList.add(
+        "is-dragging"
+      );
+    }
+  );
+  
+  
+  card.addEventListener(
+    "pointermove",
+    (event) => {
+      if (
+        !touchDragState ||
+        touchDragState.pointerId !==
+          event.pointerId
+      ) {
+        return;
+      }
+  
+      event.preventDefault();
+  
+      const distanceX =
+        event.clientX -
+        touchDragState.startX;
+  
+      const distanceY =
+        event.clientY -
+        touchDragState.startY;
+  
+      const distance =
+        Math.hypot(
+          distanceX,
+          distanceY
+        );
+  
+      if (distance > 8) {
+        touchDragState.moved =
+          true;
+      }
+  
+      moveTouchClone(
+        event.clientX,
+        event.clientY
+      );
+  
+      clearTouchDropHighlight();
+  
+      const dropZone =
+        findDropZoneAtPoint(
+          event.clientX,
+          event.clientY
+        );
+  
+      if (dropZone) {
+        dropZone.classList.add(
+          "is-touch-over"
+        );
+      }
+    }
+  );
+  
+  
+  card.addEventListener(
+    "pointerup",
+    (event) => {
+      if (
+        !touchDragState ||
+        touchDragState.pointerId !==
+          event.pointerId
+      ) {
+        return;
+      }
+  
+      event.preventDefault();
+  
+      const moved =
+        touchDragState.moved;
+  
+      const cardData =
+        touchDragState.cardData;
+  
+      if (moved) {
+        finishTouchDrag(
+          event.clientX,
+          event.clientY
+        );
+      } else {
+        touchDragState.clone?.remove();
+  
+        card.classList.remove(
+          "is-dragging"
+        );
+  
+        touchDragState = null;
+  
+        placeCard(
+          cardData.categoryId,
+          cardData.cardId,
+          cardData.label,
+          cardData.icon
+        );
+      }
+    }
+  );
+  
+  
+  card.addEventListener(
+    "pointercancel",
+    () => {
+      if (!touchDragState) {
+        return;
+      }
+  
+      clearTouchDropHighlight();
+  
+      touchDragState.clone?.remove();
+  
+      touchDragState.card.classList.remove(
+        "is-dragging"
+      );
+  
+      touchDragState = null;
     }
   );
 });
