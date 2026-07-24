@@ -6,12 +6,12 @@ from flask import (
 )
 from dotenv import load_dotenv
 
+load_dotenv()
+
 from services.generation_service import (
     build_music_prompt_with_gemini,
     generate_music_with_lyria,
 )
-
-load_dotenv()
 
 app = Flask(__name__)
 
