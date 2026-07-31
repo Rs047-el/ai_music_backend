@@ -14,7 +14,7 @@ cd ai_music_backend
 
 2. 仮想環境を有効化
 
-.venv\Scripts\activate
+.venv312\Scripts\activate
 
 3. プログラムを実行
 
